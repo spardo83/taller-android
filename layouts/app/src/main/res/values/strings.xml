@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Layouts</string>
+    <string name="orientation_vertical">Orientación Vertical</string>
+    <string name="orientation_horizontal">Orientación Horizontal</string>
+    <string name="cambiar_vertical">Cambiar a Vertical</string>
+    <string name="cambiar_horizontal">Cambiar a Horizontal</string>
+    <string name="linearlayout_weigthsum_two">Ejemplo de Weight Sum 2</string>
+    <string name="texto_1">Texto 1</string>
+    <string name="texto_2">Texto 2</string>
+    <string name="texto_3">Texto 3</string>
+    <string name="texto_4">Texto 4</string>
+    <string name="texto_5">Texto 5</string>
+    <string name="texto_6">Texto 6</string>
+    <string name="texto_7">Texto 7</string>
+    <string name="texto_8">Texto 8</string>
+    <string name="texto_9">Texto 9</string>
+    <string name="texto_10">Texto 10</string>
+    <string name="linearlayout_orientaci_n">LinearLayout Orientación</string>
+    <string name="linearlayout_weigthsum">Ejemplo de Weight Sum 1</string>
+    <string name="weight_sum_1">LinearLayout Weight Sum = 3\nTextView 1, Layout weight = 1</string>
+    <string name="weight_sum_2">TextView 2\nLayout weight = 1</string>
+    <string name="weight_sum_3">TextView 3\nLayout weight = 1\nSecond line\nThird line\nFourth line\nSixth line</string>
+    <string name="weight_1">weight = 1</string>
+    <string name="wrap_content">wrap_content</string>
+    <string name="main_text">Esta aplicación es un ejemplo para que el alumno pueda observar los diferentes tipos de layouts y algunas configuraciones básicas de los mismos.</string>
+    <string name="copyright">"\u00a9" Univerisdad nacional de la matanza 2020</string>
+</resources>
