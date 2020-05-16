@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Unlam Tunes (Practica de Libs)</string>
+    <string name="search_hint">Artista, album o canción</string>
+    <string name="search_action">Buscar</string>
+    <string name="image_description">Imagen del album</string>
+    <string name="album_price">Comprar album completo por <b>%1$.2f %2$s</b></string>
+    <string name="track_price">Comprar pista por <b>%1$.2f %2$s</b></string>
+    <string name="no_internet">No hay conexión</string>
+    <string name="not_found">No se encontraron resultados</string>
+    <string name="server_error">Ocurrio un error en el servidor</string>
+    <string name="bad_request">Su solicitud fue incorrecta</string>
+    <string name="unknown_error">Error desconocido</string>
+    <string name="resource_not_found">No se encontro el recurso</string>
+    <string name="preview">Preview</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="stop">Stop</string>
+    <string name="loading">Cargando</string>
+    <string name="protrait">Este layout es PORTRAIT</string>
+    <string name="landscape">Este layout es LANDSCAPE</string>
+</resources>
