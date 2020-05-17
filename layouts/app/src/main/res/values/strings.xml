@@ -5,6 +5,7 @@
     <string name="cambiar_vertical">Cambiar a Vertical</string>
     <string name="cambiar_horizontal">Cambiar a Horizontal</string>
     <string name="linearlayout_weigthsum_two">Ejemplo de Weight Sum 2</string>
+    <string name="constraint_layout">Constraint Layout</string>
     <string name="texto_1">Texto 1</string>
     <string name="texto_2">Texto 2</string>
     <string name="texto_3">Texto 3</string>
@@ -23,5 +24,11 @@
     <string name="weight_1">weight = 1</string>
     <string name="wrap_content">wrap_content</string>
     <string name="main_text">Esta aplicación es un ejemplo para que el alumno pueda observar los diferentes tipos de layouts y algunas configuraciones básicas de los mismos.</string>
-    <string name="copyright">"\u00a9" Univerisdad nacional de la matanza 2020</string>
+    <string name="copyright">"\u00a9" Univerisdad Nacional de la Matanza 2020</string>
+    <string name="login_titulo">Bienvenido!</string>
+    <string name="login_hint_email">Dirección de correo electrónico</string>
+    <string name="login_hint_password">Contraseña</string>
+    <string name="login_boton">Log In</string>
+    <string name="login_ayuda">¿Necesitas ayuda?</string>
+    <string name="login_registrar">Regístrese aquí</string>
 </resources>

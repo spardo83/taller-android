@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import ar.edu.unlam.layouts.constraint.ConstraintLayoutActivity
 import ar.edu.unlam.layouts.linear.LinearOrientationActivity
 import ar.edu.unlam.layouts.linear.WeightSumSampleOneActivity
 import ar.edu.unlam.layouts.linear.WeightSumSampleTwoActivity
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         )
         R.id.linear_weight_sum -> navigate(WeightSumSampleOneActivity::class.java)
         R.id.linear_weight_sum_two -> navigate(WeightSumSampleTwoActivity::class.java)
+        R.id.constraint_layout -> navigate(ConstraintLayoutActivity::class.java)
         else -> super.onOptionsItemSelected(item)
     }
 
