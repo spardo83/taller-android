@@ -3,30 +3,29 @@ package ar.edu.unlam.practicalibs
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import ar.edu.unlam.practicalibs.api.Api
 import ar.edu.unlam.practicalibs.entity.SearchResult
-import ar.edu.unlam.practicalibs.utils.hide
-import ar.edu.unlam.practicalibs.utils.hideKeyboard
-import ar.edu.unlam.practicalibs.utils.isVisible
-import ar.edu.unlam.practicalibs.utils.show
+import ar.edu.unlam.practicalibs.utils.*
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.concurrent.thread
 
 
 class MainActivity : AppCompatActivity() {
     private var player: MediaPlayer = MediaPlayer()
     private var observer: MediaObserver? = null
     private var currentPreview: String? = null
+    private var currentSearch: SearchResult? = null
+    private var currentSearchTerm: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,21 +42,54 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (currentSearch != null) {
+            outState.putString(CURRENT_SEARCH_KEY, Gson().toJson(currentSearch))
+        }
+        outState.putString(CURRENT_SEARCH_TERM, currentSearchTerm)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        if (savedInstanceState.containsKey(CURRENT_SEARCH_KEY)) {
+            val currentSearchJson = savedInstanceState.getString(CURRENT_SEARCH_KEY)
+            currentSearch = Gson().fromJson(currentSearchJson, SearchResult::class.java)
+            if (currentSearch != null) {
+                setAlbumValues(currentSearch!!)
+                dataContainer.show()
+            }
+        }
+        currentSearchTerm = savedInstanceState.getString(CURRENT_SEARCH_TERM, "")
+        searchText.editText?.setText(currentSearchTerm)
+
+    }
+
     private fun search(term: String) {
+        currentSearchTerm = term
         hideKeyboard()
         toggleLoading()
         playerLayout.hide()
+        Log.i(TAG, "Search method called with term: $term")
         Api().search(term, object : Callback<SearchResult> {
 
             override fun onFailure(call: Call<SearchResult>, t: Throwable) {
                 Snackbar.make(mainContainer, R.string.no_internet, Snackbar.LENGTH_LONG).show()
                 toggleLoading()
+                Log.e(TAG, "Search call failed", t)
             }
 
             override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
-
+                Log.i(
+                    TAG,
+                    "The response of search call was:\ncode: ${response.code()}\nbody: ${response.body()
+                        ?.toString()}"
+                )
                 when (response.code()) {
-                    in 200..299 -> setAlbumValues(response.body()!!)
+                    in 200..299 -> {
+                        currentSearch = response.body()!!
+                        setAlbumValues(response.body()!!)
+                    }
                     404 -> Toast.makeText(
                         this@MainActivity,
                         R.string.resource_not_found,
@@ -137,9 +169,9 @@ class MainActivity : AppCompatActivity() {
     private fun stop() {
         play.setImageResource(R.drawable.ic_play)
         player.stop()
-        observer?.stop()
         previewProgress.progress = 0
         preparePlayer(currentPreview.toString())
+
     }
 
     private fun toggleLoading(hasResults: Boolean = false) {
@@ -169,9 +201,9 @@ class MainActivity : AppCompatActivity() {
         player.let {
             it.reset()
             it.setDataSource(previewUrl)
-            it.prepareAsync()
             it.setOnCompletionListener { stop() }
             it.setOnPreparedListener { playerReady() }
+            it.prepareAsync()
         }
     }
 
@@ -186,12 +218,11 @@ class MainActivity : AppCompatActivity() {
         return super.isDestroyed()
     }
 
-    private class MediaObserver(val progressBar: ProgressBar, val mediaPlayer: MediaPlayer) :
+    private class MediaObserver(
+        val progressBar: ProgressBar,
+        val mediaPlayer: MediaPlayer
+    ) :
         Runnable {
-        private val stop: AtomicBoolean = AtomicBoolean(false)
-        fun stop() {
-            stop.set(true)
-        }
 
         override fun run() {
             while (mediaPlayer.isPlaying) {
@@ -208,5 +239,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val TAG = MainActivity::class.simpleName
+        val CURRENT_SEARCH_KEY = "CURRENT_SEARCH_KEY"
+        val CURRENT_SEARCH_TERM = "CURRENT_SEARCH_TERM"
     }
 }
