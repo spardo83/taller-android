@@ -8,35 +8,67 @@
     android:background="@color/background"
     tools:context=".ui.MainActivity">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/searchText"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/searchContainer"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:hint="@string/search_hint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:startIconDrawable="@drawable/ic_search">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/searchAction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/search_action"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchText" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchText"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:hint="@string/search_hint"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:startIconDrawable="@drawable/ic_search">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/search_action"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/searchText" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/orderBySelector"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/searchAction"
+                app:layout_constraintEnd_toStartOf="@+id/searchAction"
+                app:layout_constraintStart_toStartOf="@+id/searchText"
+                app:layout_constraintTop_toTopOf="@+id/searchAction" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -54,39 +86,39 @@
         android:id="@+id/albumList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchAction"
+        app:layout_constraintTop_toBottomOf="@+id/searchContainer"
         tools:itemCount="10"
-        tools:listitem="@layout/item_album" />
+        tools:listitem="@layout/item_album"
+        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"/>
 
-    <androidx.appcompat.widget.AppCompatSpinner
-        android:id="@+id/orderBySelector"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/searchAction"
-        app:layout_constraintEnd_toStartOf="@+id/searchAction"
-        app:layout_constraintStart_toStartOf="@+id/searchText"
-        app:layout_constraintTop_toBottomOf="@+id/searchText" />
+
+
     <LinearLayout
         android:id="@+id/playerLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@android:color/white"
         android:orientation="vertical"
         android:visibility="gone"
-        android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:backgroundTint="@color/playerBackground"
         tools:visibility="visible">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/preview" />
+
         <ProgressBar
             android:id="@+id/previewProgress"
             style="?android:attr/progressBarStyleHorizontal"
@@ -94,10 +126,12 @@
             android:layout_height="10dp"
             android:layout_margin="8dp"
             android:tint="@color/colorPrimaryDark" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <ImageButton
                 android:id="@+id/play"
                 android:layout_width="48dp"
@@ -107,6 +141,7 @@
                 android:contentDescription="@string/play_pause"
                 android:src="@drawable/ic_play"
                 android:tint="@color/colorAccent" />
+
             <ImageButton
                 android:id="@+id/stop"
                 android:layout_width="48dp"
@@ -116,12 +151,13 @@
                 android:contentDescription="@string/stop"
                 android:src="@drawable/ic_stop"
                 android:tint="@color/colorAccent" />
+
             <TextView
                 android:id="@+id/playingSongName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                tools:text="Wonderwall"/>
+                tools:text="Wonderwall" />
 
         </LinearLayout>
     </LinearLayout>

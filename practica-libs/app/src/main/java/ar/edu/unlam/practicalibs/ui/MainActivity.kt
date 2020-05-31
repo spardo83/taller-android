@@ -1,29 +1,29 @@
 package ar.edu.unlam.practicalibs.ui
 
 import ItunesResult
-import android.media.MediaPlayer
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import ar.edu.unlam.practicalibs.R
 import ar.edu.unlam.practicalibs.adapters.AlbumAdapter
 import ar.edu.unlam.practicalibs.api.Api
 import ar.edu.unlam.practicalibs.entity.SearchResult
 import ar.edu.unlam.practicalibs.media.MusicPlayer
-import ar.edu.unlam.practicalibs.utils.*
+import ar.edu.unlam.practicalibs.utils.hide
+import ar.edu.unlam.practicalibs.utils.hideKeyboard
+import ar.edu.unlam.practicalibs.utils.isVisible
+import ar.edu.unlam.practicalibs.utils.show
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,8 +31,7 @@ class MainActivity : AppCompatActivity() {
     private var currentSearch: SearchResult? = null
     private var currentSearchTerm: String = ""
     private var adapter = AlbumAdapter { onAlbumPreviewSelected(it) }
-    private val musicPlayer = MusicPlayer.instance
-    private lateinit var observer: MediaObserver
+    private var musicPlayer = MusicPlayer.getInstance { onProgress(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +48,13 @@ class MainActivity : AppCompatActivity() {
 
         orderBySelector.onItemSelectedListener = onItemSelected()
 
-
-        observer = MediaObserver(previewProgress, musicPlayer.player)
-        play.setOnClickListener{playPause()}
+        play.setOnClickListener { playPause() }
         stop.setOnClickListener { stop() }
-        albumList.layoutManager = LinearLayoutManager(this)
+        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            albumList.layoutManager = LinearLayoutManager(this)
+        }else{
+            albumList.layoutManager = GridLayoutManager(this,2)
+        }
         albumList.adapter = adapter
 
         supportActionBar?.setDisplayShowTitleEnabled(true)
@@ -80,9 +81,15 @@ class MainActivity : AppCompatActivity() {
         }
         currentSearchTerm = savedInstanceState.getString(CURRENT_SEARCH_TERM, "")
         searchText.editText?.setText(currentSearchTerm)
-        if(musicPlayer.player.isPlaying){
+        if (musicPlayer.isPlaying()) {
             playerLayout.show()
-        }else{
+            play.setImageResource(R.drawable.ic_pause)
+            playingSongName.text = getString(
+                R.string.current_paying,
+                musicPlayer.currentlyPlaying?.artistName,
+                musicPlayer.currentlyPlaying?.trackName
+            )
+        } else {
             playerLayout.hide()
         }
     }
@@ -183,6 +190,7 @@ class MainActivity : AppCompatActivity() {
             id: Long
         ) {
             adapter.orderBy(AlbumAdapter.Order.values()[position])
+            adapter.notifyDataSetChanged()
         }
 
     }
@@ -192,59 +200,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playPause() {
-        if (musicPlayer.player.isPlaying) {
-            musicPlayer.player.pause()
-            play.setImageResource(R.drawable.ic_play)
-        } else {
-            musicPlayer.player.start()
+        musicPlayer.playPause()
+        if (musicPlayer.isPlaying()) {
             play.setImageResource(R.drawable.ic_pause)
+        } else {
+            play.setImageResource(R.drawable.ic_play)
         }
 
-        Thread(observer).start()
+
     }
 
 
     private fun stop() {
+        musicPlayer.stop()
         play.setImageResource(R.drawable.ic_play)
-        musicPlayer.player.stop()
         previewProgress.progress = 0
     }
 
 
     private fun initPlayer(album: ItunesResult) {
-        musicPlayer.let {
-            it.player.reset()
-            it.player.setDataSource(album.previewUrl)
-            it.player.setOnCompletionListener { stop() }
-            it.player.setOnPreparedListener { playerReady() }
-            it.player.prepareAsync()
-        }
-
+        loadingPreview.show()
+        musicPlayer.initPlayer(album, { stop() }, { playerReady() })
     }
 
     private fun playerReady() {
         loadingPreview.hide()
         playerLayout.show()
+        playingSongName.text = getString(
+            R.string.current_paying,
+            musicPlayer.currentlyPlaying?.artistName,
+            musicPlayer.currentlyPlaying?.trackName
+        )
         playPause()
+
     }
 
-    private class MediaObserver(
-        val progressBar: ProgressBar,
-        val mediaPlayer: MediaPlayer
-    ) :
-        Runnable {
-
-        override fun run() {
-            while (mediaPlayer.isPlaying) {
-                progressBar.progress =
-                    (mediaPlayer.currentPosition.toDouble() / mediaPlayer.duration.toDouble() * 100).toInt()
-                try {
-                    Thread.sleep(200)
-                } catch (ex: Exception) {
-                    Log.e(MusicPlayer.TAG, "Error sleeping observer thread", ex)
-                }
-            }
-        }
+    private fun onProgress(progress: Int) {
+        previewProgress.progress = progress
     }
 
     companion object {

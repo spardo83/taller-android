@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#2072DC</color>
     <color name="colorAccent">#119384</color>
     <color name="background">#ECECEC</color>
+    <color name="playerBackground">#D9EFED</color>
 </resources>
