@@ -17,4 +17,6 @@
     <string name="loading">Cargando</string>
     <string name="protrait">Este layout es PORTRAIT</string>
     <string name="landscape">Este layout es LANDSCAPE</string>
+    <string name="order_by_track">Canción</string>
+    <string name="order_by_album">Album</string>
 </resources>

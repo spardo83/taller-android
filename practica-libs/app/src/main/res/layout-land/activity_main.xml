@@ -50,156 +50,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/dataContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:elevation="4dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchAction"
-        app:strokeColor="@android:color/black"
-        app:strokeWidth="1dp"
-        tools:visibility="visible">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/thumbNail"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/image_description"
-                android:maxHeight="300dp"
-                android:minHeight="150dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/artistName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:layout_constraintStart_toEndOf="@+id/thumbNail"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Oasis" />
-
-            <TextView
-                android:id="@+id/albumName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintStart_toStartOf="@+id/artistName"
-                app:layout_constraintTop_toBottomOf="@+id/artistName"
-                tools:text="Definitly Maybe" />
-
-            <TextView
-                android:id="@+id/albumPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintStart_toStartOf="@+id/albumName"
-                app:layout_constraintTop_toBottomOf="@+id/albumName"
-                tools:text="Comprar album completo por 200$ ARS" />
-
-            <TextView
-                android:id="@+id/trackPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?android:attr/textColorSecondary"
-                app:layout_constraintStart_toStartOf="@+id/albumPrice"
-                app:layout_constraintTop_toBottomOf="@+id/albumPrice"
-                tools:text="omprar pista por 10$ ARS" />
-
-
-            <LinearLayout
-                android:id="@+id/playerLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="8dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/trackPrice"
-                app:layout_constraintTop_toBottomOf="@+id/trackPrice">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/preview" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <ImageButton
-                        android:id="@+id/play"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="5dp"
-                        android:background="@null"
-                        android:contentDescription="@string/play_pause"
-                        android:src="@drawable/ic_play"
-                        android:tint="@color/colorAccent" />
-
-                    <ImageButton
-                        android:id="@+id/stop"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="5dp"
-                        android:background="@null"
-                        android:contentDescription="@string/stop"
-                        android:src="@drawable/ic_stop"
-                        android:tint="@color/colorAccent" />
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/previewProgress"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    android:layout_margin="8dp"
-                    android:tint="@color/colorPrimaryDark" />
-
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/loadingPreview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/loading"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/playerLayout"
-                app:layout_constraintEnd_toEndOf="@+id/playerLayout"
-                app:layout_constraintStart_toStartOf="@+id/playerLayout"
-                app:layout_constraintTop_toTopOf="@+id/playerLayout"
-                app:srcCompat="@drawable/loading_spinner" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:text="@string/landscape"
         app:layout_constraintEnd_toStartOf="@+id/searchAction"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchText" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/albumList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchAction"
+        tools:itemCount="10"
+        tools:listitem="@layout/item_album" />
+
+    <Button
+        android:id="@+id/orderByTrack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="@string/order_by_track"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <Button
+        android:id="@+id/orderByAlbum"
+        android:backgroundTint="@color/colorAccent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/order_by_album"
+        app:layout_constraintStart_toEndOf="@+id/orderByTrack"
+        app:layout_constraintTop_toTopOf="@+id/orderByTrack" />
 </androidx.constraintlayout.widget.ConstraintLayout>
