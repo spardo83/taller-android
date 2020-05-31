@@ -1,26 +1,28 @@
-package ar.edu.unlam.practicalibs
+package ar.edu.unlam.practicalibs.ui
 
-import android.media.AudioAttributes
+import ItunesResult
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import ar.edu.unlam.practicalibs.R
 import ar.edu.unlam.practicalibs.adapters.AlbumAdapter
 import ar.edu.unlam.practicalibs.api.Api
 import ar.edu.unlam.practicalibs.entity.SearchResult
+import ar.edu.unlam.practicalibs.media.MusicPlayer
 import ar.edu.unlam.practicalibs.utils.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -28,7 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     private var currentSearch: SearchResult? = null
     private var currentSearchTerm: String = ""
-    private var adapter = AlbumAdapter()
+    private var adapter = AlbumAdapter { onAlbumPreviewSelected(it) }
+    private val musicPlayer = MusicPlayer.instance
+    private lateinit var observer: MediaObserver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,17 +42,17 @@ class MainActivity : AppCompatActivity() {
             search(searchText.editText?.text.toString())
         }
 
-        orderByTrack.setOnClickListener {
-            adapter.orderBy(AlbumAdapter.Order.TRACK_NAME)
-            adapter.notifyDataSetChanged()
-        }
+        orderBySelector.adapter = ArrayAdapter(
+            this,
+            R.layout.support_simple_spinner_dropdown_item, AlbumAdapter.Order.values()
+        )
 
-        orderByAlbum.setOnClickListener {
-            adapter.orderBy(AlbumAdapter.Order.ALBUM_NAME)
-            adapter.notifyDataSetChanged()
-        }
+        orderBySelector.onItemSelectedListener = onItemSelected()
 
-//        observer = MediaObserver(previewProgress, player)
+
+        observer = MediaObserver(previewProgress, musicPlayer.player)
+        play.setOnClickListener{playPause()}
+        stop.setOnClickListener { stop() }
         albumList.layoutManager = LinearLayoutManager(this)
         albumList.adapter = adapter
 
@@ -76,6 +80,11 @@ class MainActivity : AppCompatActivity() {
         }
         currentSearchTerm = savedInstanceState.getString(CURRENT_SEARCH_TERM, "")
         searchText.editText?.setText(currentSearchTerm)
+        if(musicPlayer.player.isPlaying){
+            playerLayout.show()
+        }else{
+            playerLayout.hide()
+        }
     }
 
     private fun search(term: String) {
@@ -86,7 +95,10 @@ class MainActivity : AppCompatActivity() {
         Api().search(term, object : Callback<SearchResult> {
 
             override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-                Snackbar.make(mainContainer, R.string.no_internet, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    mainContainer,
+                    R.string.no_internet, Snackbar.LENGTH_LONG
+                ).show()
                 toggleLoading()
                 Log.e(TAG, "Search call failed", t)
             }
@@ -131,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                         .show()
                 }
 
-                toggleLoading(response.isSuccessful)
+                toggleLoading()
             }
         })
     }
@@ -154,7 +166,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun toggleLoading(hasResults: Boolean = false) {
+    private fun toggleLoading() {
         if (progressBar.isVisible()) {
             progressBar.hide()
         } else {
@@ -162,6 +174,78 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun onItemSelected() = object : AdapterView.OnItemSelectedListener {
+        override fun onNothingSelected(parent: AdapterView<*>?) {}
+        override fun onItemSelected(
+            parent: AdapterView<*>?,
+            view: View?,
+            position: Int,
+            id: Long
+        ) {
+            adapter.orderBy(AlbumAdapter.Order.values()[position])
+        }
+
+    }
+
+    private fun onAlbumPreviewSelected(album: ItunesResult) {
+        initPlayer(album)
+    }
+
+    private fun playPause() {
+        if (musicPlayer.player.isPlaying) {
+            musicPlayer.player.pause()
+            play.setImageResource(R.drawable.ic_play)
+        } else {
+            musicPlayer.player.start()
+            play.setImageResource(R.drawable.ic_pause)
+        }
+
+        Thread(observer).start()
+    }
+
+
+    private fun stop() {
+        play.setImageResource(R.drawable.ic_play)
+        musicPlayer.player.stop()
+        previewProgress.progress = 0
+    }
+
+
+    private fun initPlayer(album: ItunesResult) {
+        musicPlayer.let {
+            it.player.reset()
+            it.player.setDataSource(album.previewUrl)
+            it.player.setOnCompletionListener { stop() }
+            it.player.setOnPreparedListener { playerReady() }
+            it.player.prepareAsync()
+        }
+
+    }
+
+    private fun playerReady() {
+        loadingPreview.hide()
+        playerLayout.show()
+        playPause()
+    }
+
+    private class MediaObserver(
+        val progressBar: ProgressBar,
+        val mediaPlayer: MediaPlayer
+    ) :
+        Runnable {
+
+        override fun run() {
+            while (mediaPlayer.isPlaying) {
+                progressBar.progress =
+                    (mediaPlayer.currentPosition.toDouble() / mediaPlayer.duration.toDouble() * 100).toInt()
+                try {
+                    Thread.sleep(200)
+                } catch (ex: Exception) {
+                    Log.e(MusicPlayer.TAG, "Error sleeping observer thread", ex)
+                }
+            }
+        }
+    }
 
     companion object {
         val TAG = MainActivity::class.simpleName

@@ -19,4 +19,6 @@
     <string name="landscape">Este layout es LANDSCAPE</string>
     <string name="order_by_track">Canción</string>
     <string name="order_by_album">Album</string>
+    <string name="order_by_artist">Nombre de artista</string>
+    <string name="current_paying"><b>%1$s</b> - %2$s</string>
 </resources>

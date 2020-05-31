@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchText"
@@ -50,16 +50,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/landscape"
-        app:layout_constraintEnd_toStartOf="@+id/searchAction"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchText" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/albumList"
         android:layout_width="0dp"
@@ -72,23 +62,80 @@
         tools:itemCount="10"
         tools:listitem="@layout/item_album" />
 
-    <Button
-        android:id="@+id/orderByTrack"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/orderBySelector"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/searchAction"
+        app:layout_constraintEnd_toStartOf="@+id/searchAction"
+        app:layout_constraintStart_toStartOf="@+id/searchText"
+        app:layout_constraintTop_toBottomOf="@+id/searchText" />
+    <LinearLayout
+        android:id="@+id/playerLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:backgroundTint="@color/colorAccent"
-        android:text="@string/order_by_track"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        tools:visibility="visible">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/preview" />
+        <ProgressBar
+            android:id="@+id/previewProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_margin="8dp"
+            android:tint="@color/colorPrimaryDark" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/play"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="5dp"
+                android:background="@null"
+                android:contentDescription="@string/play_pause"
+                android:src="@drawable/ic_play"
+                android:tint="@color/colorAccent" />
+            <ImageButton
+                android:id="@+id/stop"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="5dp"
+                android:background="@null"
+                android:contentDescription="@string/stop"
+                android:src="@drawable/ic_stop"
+                android:tint="@color/colorAccent" />
+            <TextView
+                android:id="@+id/playingSongName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                tools:text="Wonderwall"/>
 
-    <Button
-        android:id="@+id/orderByAlbum"
-        android:backgroundTint="@color/colorAccent"
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/loadingPreview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="@string/order_by_album"
-        app:layout_constraintStart_toEndOf="@+id/orderByTrack"
-        app:layout_constraintTop_toTopOf="@+id/orderByTrack" />
+        android:contentDescription="@string/loading"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/playerLayout"
+        app:layout_constraintEnd_toEndOf="@+id/playerLayout"
+        app:layout_constraintStart_toStartOf="@+id/playerLayout"
+        app:layout_constraintTop_toTopOf="@+id/playerLayout"
+        app:srcCompat="@drawable/loading_spinner" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

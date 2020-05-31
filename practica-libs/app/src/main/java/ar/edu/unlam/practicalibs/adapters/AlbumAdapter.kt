@@ -4,12 +4,15 @@ import ItunesResult
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
+import ar.edu.unlam.practicalibs.ItunesApp
 import ar.edu.unlam.practicalibs.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_album.view.*
 
-class AlbumAdapter : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+class AlbumAdapter(val previewCallback: (album: ItunesResult) -> Unit) :
+    RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
 
     var albumList = ArrayList<ItunesResult>()
 
@@ -63,15 +66,23 @@ class AlbumAdapter : RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
                 .placeholder(R.drawable.loading_spinner)
                 .error(R.drawable.ic_error)
                 .into(holder.itemView.thumbNail)
+
+            holder.itemView.selectPreview.setOnClickListener {
+                previewCallback(album)
+            }
         }
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     }
 
-    enum class Order {
-        TRACK_NAME,
-        ALBUM_NAME,
-        ARTIST_NAME
+    enum class Order(@StringRes val text: Int) {
+        TRACK_NAME(R.string.order_by_track),
+        ALBUM_NAME(R.string.order_by_album),
+        ARTIST_NAME(R.string.order_by_artist);
+
+        override fun toString(): String {
+            return ItunesApp.instance.applicationContext.getString(this.text)
+        }
     }
 }
