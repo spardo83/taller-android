@@ -6,7 +6,7 @@ import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class Api {
+class Api  {
 
     private fun getApi(): ItunesApi {
         val retrofit = Retrofit.Builder()
@@ -20,4 +20,5 @@ class Api {
     fun search(terms: String, callback: Callback<SearchResult>) {
         getApi().search(terms.replace(" ", "+")).enqueue(callback)
     }
+
 }

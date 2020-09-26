@@ -1,6 +1,7 @@
 package ar.edu.unlam.practicalibs.ui
 
 import ItunesResult
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -30,7 +31,9 @@ class MainActivity : AppCompatActivity() {
 
     private var currentSearch: SearchResult? = null
     private var currentSearchTerm: String = ""
-    private var adapter = AlbumAdapter { onAlbumPreviewSelected(it) }
+    private var adapter = AlbumAdapter({ onAlbumPreviewSelected(it) }, { onBuyTrackClick(it) })
+
+
     private var musicPlayer = MusicPlayer.getInstance { onProgress(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,10 +53,10 @@ class MainActivity : AppCompatActivity() {
 
         play.setOnClickListener { playPause() }
         stop.setOnClickListener { stop() }
-        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             albumList.layoutManager = LinearLayoutManager(this)
-        }else{
-            albumList.layoutManager = GridLayoutManager(this,2)
+        } else {
+            albumList.layoutManager = GridLayoutManager(this, 2)
         }
         albumList.adapter = adapter
 
@@ -237,6 +240,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun onProgress(progress: Int) {
         previewProgress.progress = progress
+    }
+
+    private fun onBuyTrackClick(album: ItunesResult) {
+        val intent = Intent(this, BuyTrackActivity::class.java)
+        intent.putExtra(BuyTrackActivity.ALBUM_PARAM, Gson().toJson(album))
+        startActivity(intent)
     }
 
     companion object {

@@ -1,6 +1,7 @@
 package ar.edu.unlam.practicalibs.adapters
 
 import ItunesResult
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,9 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import ar.edu.unlam.practicalibs.ItunesApp
 import ar.edu.unlam.practicalibs.R
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_buy_track.*
 import kotlinx.android.synthetic.main.item_album.view.*
+import kotlinx.android.synthetic.main.item_album.view.favorites
 
-class AlbumAdapter(val previewCallback: (album: ItunesResult) -> Unit) :
+class AlbumAdapter(
+    val previewCallback: (album: ItunesResult) -> Unit,
+    val onBuyTrackClick: (album: ItunesResult) -> Unit
+) :
     RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
 
     var albumList = ArrayList<ItunesResult>()
@@ -70,6 +76,24 @@ class AlbumAdapter(val previewCallback: (album: ItunesResult) -> Unit) :
             holder.itemView.selectPreview.setOnClickListener {
                 previewCallback(album)
             }
+
+            holder.itemView.buyTrack.setOnClickListener {
+                onBuyTrackClick(album)
+            }
+
+            val context = holder.itemView.context
+            val sharedPreferences = context.getSharedPreferences(
+                context.getString(R.string.sharedPreferencesKey),
+                Context.MODE_PRIVATE
+            )
+
+            val isFavorite = sharedPreferences.getBoolean(album.trackId.toString(), false)
+            if (isFavorite) {
+                holder.itemView.favorites.setImageDrawable(context.getDrawable(R.drawable.ic_checked_star))
+            } else {
+                holder.itemView.favorites.setImageDrawable(context.getDrawable(R.drawable.ic_unchecked_favorite))
+            }
+
         }
     }
 
