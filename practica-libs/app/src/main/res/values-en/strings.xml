@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unlam Tunes (Practica de Libs)</string>
+    <string name="search_action">Search</string>
+    <string name="image_description">Album image</string>
+</resources>
