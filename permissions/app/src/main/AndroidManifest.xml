@@ -13,8 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Permissions">
-        <activity android:name=".RationaleActivity"></activity>
+
         <activity android:name=".MainActivity">
+        </activity>
+        <activity android:name=".MainSelfHandledActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

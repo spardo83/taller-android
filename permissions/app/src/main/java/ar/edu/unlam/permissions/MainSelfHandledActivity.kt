@@ -2,26 +2,18 @@ package ar.edu.unlam.permissions
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import ar.edu.unlam.permissions.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(), ActivityResultCallback<Any> {
+class MainSelfHandledActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val REQUEST_CODE = 200
 
-    val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                setPermissionsText()
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,32 +22,42 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<Any> {
         setContentView(view)
         setPermissionsText()
 
-        binding.requestCamera.setOnClickListener { requestCameraPermission() }
-        binding.requestLocation.setOnClickListener { requestLocationPermission() }
-        binding.requestAudio.setOnClickListener { requestAudioPermission() }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            binding.requestCamera.setOnClickListener {
+                requestCameraPermission()
+            }
+            binding.requestLocation.setOnClickListener { requestLocationPermission() }
+            binding.requestAudio.setOnClickListener { requestAudioPermission() }
+        }
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun requestCameraPermission() {
         if (!hasCameraPermission()) {
-            requestPermissionLauncher.launch(
-                Manifest.permission.CAMERA
+            requestPermissions(
+                arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CODE
             )
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun requestLocationPermission() {
         if (!hasLocationPermission()) {
-            requestPermissionLauncher.launch(
-                Manifest.permission.ACCESS_FINE_LOCATION
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_CODE
             )
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun requestAudioPermission() {
         if (!hasAudioPermission()) {
-            requestPermissionLauncher.launch(
-                Manifest.permission.RECORD_AUDIO
+            requestPermissions(
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                REQUEST_CODE
             )
         }
     }
@@ -76,15 +78,27 @@ class MainActivity : AppCompatActivity(), ActivityResultCallback<Any> {
         Manifest.permission.RECORD_AUDIO
     ) == PackageManager.PERMISSION_GRANTED
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, grantResults: IntArray
+    ) {
+
+        when (requestCode) {
+            REQUEST_CODE -> {
+                if ((grantResults.isNotEmpty() &&
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
+                    setPermissionsText()
+                }
+                return
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 
     private fun setPermissionsText() {
         binding.hasCamera.text = if (hasCameraPermission()) "SI" else "NO"
         binding.hasLocation.text = if (hasLocationPermission()) "SI" else "NO"
         binding.hasAudio.text = if (hasAudioPermission()) "SI" else "NO"
     }
-
-    override fun onActivityResult(result: Any?) {
-        Log.i("test", "result $result")
-    }
-
 }
