@@ -20,15 +20,20 @@
         </activity>
         <activity
             android:name=".linear.WeightSumSampleOneActivity"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.AppBarOverlay" />
         <activity
             android:name=".linear.LinearOrientationActivity"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".linear.WeightSumSampleTwoActivity"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.AppBarOverlay" />
+        <activity
+            android:name=".linear.WeightSumSampleTwoActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.AppBarOverlay" />
+        <activity
+            android:name=".constraint.ConstraintLayoutActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.AppBarOverlay" />
     </application>
 
 </manifest>
