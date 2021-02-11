@@ -1,19 +1,26 @@
-package ar.edu.unlam.practicalibs
+package ar.edu.unlam.practicalibs.ui
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
+import ItunesResult
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import ar.edu.unlam.practicalibs.R
+import ar.edu.unlam.practicalibs.adapters.AlbumAdapter
 import ar.edu.unlam.practicalibs.api.Api
 import ar.edu.unlam.practicalibs.entity.SearchResult
-import ar.edu.unlam.practicalibs.utils.*
+import ar.edu.unlam.practicalibs.media.MusicPlayer
+import ar.edu.unlam.practicalibs.utils.hide
+import ar.edu.unlam.practicalibs.utils.hideKeyboard
+import ar.edu.unlam.practicalibs.utils.isVisible
+import ar.edu.unlam.practicalibs.utils.show
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,21 +28,37 @@ import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
-    private var player: MediaPlayer = MediaPlayer()
-    private var observer: MediaObserver? = null
-    private var currentPreview: String? = null
+
     private var currentSearch: SearchResult? = null
     private var currentSearchTerm: String = ""
+    private var adapter = AlbumAdapter({ onAlbumPreviewSelected(it) }, { onBuyTrackClick(it) })
+
+
+    private var musicPlayer = MusicPlayer.getInstance { onProgress(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        createPlayer()
-        searchAction.setOnClickListener { search(searchText.editText?.text.toString()) }
+        searchAction.setOnClickListener {
+            search(searchText.editText?.text.toString())
+        }
+
+        orderBySelector.adapter = ArrayAdapter(
+            this,
+            R.layout.support_simple_spinner_dropdown_item, AlbumAdapter.Order.values()
+        )
+
+        orderBySelector.onItemSelectedListener = onItemSelected()
+
         play.setOnClickListener { playPause() }
         stop.setOnClickListener { stop() }
-        observer = MediaObserver(previewProgress, player)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            albumList.layoutManager = LinearLayoutManager(this)
+        } else {
+            albumList.layoutManager = GridLayoutManager(this, 2)
+        }
+        albumList.adapter = adapter
 
         supportActionBar?.setDisplayShowTitleEnabled(true)
         supportActionBar?.setIcon(R.mipmap.ic_launcher_foreground)
@@ -57,29 +80,43 @@ class MainActivity : AppCompatActivity() {
             currentSearch = Gson().fromJson(currentSearchJson, SearchResult::class.java)
             if (currentSearch != null) {
                 setAlbumValues(currentSearch!!)
-                dataContainer.show()
             }
         }
         currentSearchTerm = savedInstanceState.getString(CURRENT_SEARCH_TERM, "")
         searchText.editText?.setText(currentSearchTerm)
-
+        if (musicPlayer.isPlaying()) {
+            playerLayout.show()
+            play.setImageResource(R.drawable.ic_pause)
+            playingSongName.text = getString(
+                R.string.current_paying,
+                musicPlayer.currentlyPlaying?.artistName,
+                musicPlayer.currentlyPlaying?.trackName
+            )
+        } else {
+            playerLayout.hide()
+        }
     }
 
     private fun search(term: String) {
         currentSearchTerm = term
         hideKeyboard()
         toggleLoading()
-        playerLayout.hide()
         Log.i(TAG, "Search method called with term: $term")
         Api().search(term, object : Callback<SearchResult> {
 
             override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-                Snackbar.make(mainContainer, R.string.no_internet, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    mainContainer,
+                    R.string.no_internet, Snackbar.LENGTH_LONG
+                ).show()
                 toggleLoading()
                 Log.e(TAG, "Search call failed", t)
             }
 
-            override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
+            override fun onResponse(
+                call: Call<SearchResult>,
+                response: Response<SearchResult>
+            ) {
                 Log.i(
                     TAG,
                     "The response of search call was:\ncode: ${response.code()}\nbody: ${response.body()
@@ -116,32 +153,17 @@ class MainActivity : AppCompatActivity() {
                         .show()
                 }
 
-                toggleLoading(response.isSuccessful)
+                toggleLoading()
             }
         })
     }
 
     private fun setAlbumValues(body: SearchResult) {
         if (body.resultCount > 0) {
-            body.results.get(0).let { firstAlbum ->
-                artistName.text = firstAlbum.artistName
-                albumName.text = firstAlbum.collectionName
-                albumPrice.text =
-                    getString(R.string.album_price, firstAlbum.collectionPrice, firstAlbum.currency)
-                trackPrice.text =
-                    getString(R.string.track_price, firstAlbum.trackPrice, firstAlbum.currency)
-
-                Picasso.get()
-                    .load(firstAlbum.artworkUrl100)
-                    .placeholder(R.drawable.loading_spinner)
-                    .error(R.drawable.ic_error)
-                    .into(thumbNail)
-
-                currentPreview = firstAlbum.previewUrl
-                loadingPreview.show()
-                preparePlayer(firstAlbum.previewUrl)
-            }
+            adapter.albumList = body.results
         } else {
+            adapter.albumList = ArrayList()
+
             Toast.makeText(
                 this@MainActivity,
                 R.string.not_found,
@@ -150,91 +172,80 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
 
-
-    }
-
-    private fun playPause() {
-        if (player.isPlaying) {
-            player.pause()
-            play.setImageResource(R.drawable.ic_play)
-        } else {
-            player.start()
-            play.setImageResource(R.drawable.ic_pause)
-        }
-
-        Thread(observer).start()
+        adapter.notifyDataSetChanged()
     }
 
 
-    private fun stop() {
-        play.setImageResource(R.drawable.ic_play)
-        player.stop()
-        previewProgress.progress = 0
-        preparePlayer(currentPreview.toString())
-
-    }
-
-    private fun toggleLoading(hasResults: Boolean = false) {
+    private fun toggleLoading() {
         if (progressBar.isVisible()) {
             progressBar.hide()
         } else {
             progressBar.show()
         }
+    }
 
-        if (hasResults) {
-            dataContainer.show()
+    private fun onItemSelected() = object : AdapterView.OnItemSelectedListener {
+        override fun onNothingSelected(parent: AdapterView<*>?) {}
+        override fun onItemSelected(
+            parent: AdapterView<*>?,
+            view: View?,
+            position: Int,
+            id: Long
+        ) {
+            adapter.orderBy(AlbumAdapter.Order.values()[position])
+            adapter.notifyDataSetChanged()
+        }
+
+    }
+
+    private fun onAlbumPreviewSelected(album: ItunesResult) {
+        initPlayer(album)
+    }
+
+    private fun playPause() {
+        musicPlayer.playPause()
+        if (musicPlayer.isPlaying()) {
+            play.setImageResource(R.drawable.ic_pause)
         } else {
-            dataContainer.hide()
+            play.setImageResource(R.drawable.ic_play)
         }
+
+
     }
 
-    private fun createPlayer() {
-        player.setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
-        )
+
+    private fun stop() {
+        musicPlayer.stop()
+        play.setImageResource(R.drawable.ic_play)
+        previewProgress.progress = 0
     }
 
-    private fun preparePlayer(previewUrl: String) {
-        player.let {
-            it.reset()
-            it.setDataSource(previewUrl)
-            it.setOnCompletionListener { stop() }
-            it.setOnPreparedListener { playerReady() }
-            it.prepareAsync()
-        }
+
+    private fun initPlayer(album: ItunesResult) {
+        loadingPreview.show()
+        musicPlayer.initPlayer(album, { stop() }, { playerReady() })
     }
 
     private fun playerReady() {
         loadingPreview.hide()
         playerLayout.show()
+        playingSongName.text = getString(
+            R.string.current_paying,
+            musicPlayer.currentlyPlaying?.artistName,
+            musicPlayer.currentlyPlaying?.trackName
+        )
+        playPause()
+
     }
 
-
-    override fun isDestroyed(): Boolean {
-        player.release()
-        return super.isDestroyed()
+    private fun onProgress(progress: Int) {
+        previewProgress.progress = progress
     }
 
-    private class MediaObserver(
-        val progressBar: ProgressBar,
-        val mediaPlayer: MediaPlayer
-    ) :
-        Runnable {
-
-        override fun run() {
-            while (mediaPlayer.isPlaying) {
-                progressBar.progress =
-                    (mediaPlayer.currentPosition.toDouble() / mediaPlayer.duration.toDouble() * 100).toInt()
-                try {
-                    Thread.sleep(200)
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Error sleeping observer thread", ex)
-                }
-            }
-        }
+    private fun onBuyTrackClick(album: ItunesResult) {
+        val intent = Intent(this, BuyTrackActivity::class.java)
+        intent.putExtra(BuyTrackActivity.ALBUM_PARAM, Gson().toJson(album))
+        startActivity(intent)
     }
 
     companion object {

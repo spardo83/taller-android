@@ -17,4 +17,11 @@
     <string name="loading">Cargando</string>
     <string name="protrait">Este layout es PORTRAIT</string>
     <string name="landscape">Este layout es LANDSCAPE</string>
+    <string name="order_by_track">Canción</string>
+    <string name="order_by_album">Album</string>
+    <string name="order_by_artist">Nombre de artista</string>
+    <string name="current_paying"><b>%1$s</b> - %2$s</string>
+    <string name="buyTrack">Comprar</string>
+    <string name="sharedPreferencesKey">ar.edu.unlam.practicalibs.preferences</string>
+    <string name="favorites">Favoritos</string>
 </resources>
